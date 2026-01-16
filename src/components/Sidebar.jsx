@@ -55,7 +55,12 @@ const Sidebar = () => {
             onClick={() => setCurrentView('home')} 
           />
           <SidebarItem icon={Grid} label="Browse" />
-          <SidebarItem icon={Radio} label="Radio" />
+          <SidebarItem 
+            icon={Radio} 
+            label="Radio" 
+            active={currentView === 'radio'}
+            onClick={() => setCurrentView('radio')}
+          />
         </SidebarGroup>
 
         <SidebarGroup title="Library">

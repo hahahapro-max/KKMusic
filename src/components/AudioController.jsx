@@ -1,8 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import { usePlayerStore } from '../store';
+import Hls from 'hls.js';
 
 const AudioController = () => {
   const audioRef = useRef(new Audio());
+  const hlsRef = useRef(null);
   const { 
     currentSong, isPlaying, volume, setIsPlaying, nextSong, 
     setCurrentTime, setDuration, currentTime
@@ -15,16 +17,16 @@ const AudioController = () => {
     if (!currentSong) {
       audio.pause();
       audio.src = '';
+      if (hlsRef.current) {
+        hlsRef.current.destroy();
+        hlsRef.current = null;
+      }
       return;
     }
 
-    // Get the file blob URL
-    // NOTE: In a real app we might need to revoke object URLs to avoid memory leaks
-    // For now, we just create a new one.
     const loadAndPlay = async () => {
       let src = '';
       if (currentSong.url) {
-         // Direct URL (Search Result)
          src = currentSong.url;
       } else if (currentSong.fileHandle) {
         try {
@@ -32,26 +34,59 @@ const AudioController = () => {
           src = URL.createObjectURL(file);
         } catch (e) {
           console.error("Failed to load file", e);
-          // If permission lost, we might need to ask user again.
-          // For MVP we assume permission persists for session or re-prompt needed (not implemented yet)
         }
-      } else {
-        // Fallback or demo data
-        // src = currentSong.url; 
       }
 
       if (src) {
-        // Only update src if it changed to avoid reloading same song
-        // Actually, we should check if it's the same song ID.
-        // But the store updates currentSong only when it changes usually.
-        // To be safe, we can store currentSrc in a ref.
-        if (audio.src !== src) {
-            audio.src = src;
-            audio.load();
+        // Destroy previous HLS instance if exists
+        if (hlsRef.current) {
+          hlsRef.current.destroy();
+          hlsRef.current = null;
         }
-        
-        if (isPlaying) {
-            audio.play().catch(e => console.warn("Autoplay prevented", e));
+
+        // Check for HLS support
+        if (Hls.isSupported() && (src.includes('.m3u8') || currentSong.isRadio)) {
+          const hls = new Hls();
+          hlsRef.current = hls;
+          hls.loadSource(src);
+          hls.attachMedia(audio);
+          hls.on(Hls.Events.MANIFEST_PARSED, () => {
+             if (isPlaying) audio.play().catch(e => console.warn("Autoplay prevented", e));
+          });
+          hls.on(Hls.Events.ERROR, function (event, data) {
+            if (data.fatal) {
+              switch (data.type) {
+                case Hls.ErrorTypes.NETWORK_ERROR:
+                  console.log("fatal network error encountered, try to recover");
+                  hls.startLoad();
+                  break;
+                case Hls.ErrorTypes.MEDIA_ERROR:
+                  console.log("fatal media error encountered, try to recover");
+                  hls.recoverMediaError();
+                  break;
+                default:
+                  hls.destroy();
+                  break;
+              }
+            }
+          });
+        } 
+        // Native HLS support (Safari)
+        else if (audio.canPlayType('application/vnd.apple.mpegurl') && (src.includes('.m3u8') || currentSong.isRadio)) {
+           audio.src = src;
+           if (isPlaying) {
+             audio.play().catch(e => console.warn("Autoplay prevented", e));
+           }
+        }
+        // Standard Audio
+        else {
+           if (audio.src !== src) {
+               audio.src = src;
+               audio.load();
+           }
+           if (isPlaying) {
+               audio.play().catch(e => console.warn("Autoplay prevented", e));
+           }
         }
       }
     };
@@ -61,7 +96,7 @@ const AudioController = () => {
     return () => {
         // cleanup if needed
     };
-  }, [currentSong]);
+  }, [currentSong]); // Note: removed isPlaying from dep array to avoid re-loading on pause/play toggle
 
   // Handle Play/Pause Toggle
   useEffect(() => {
@@ -72,6 +107,7 @@ const AudioController = () => {
         if (!audio.paused) audio.pause();
     }
   }, [isPlaying]);
+
 
   // Handle Volume
   useEffect(() => {

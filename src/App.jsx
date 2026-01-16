@@ -4,6 +4,7 @@ import Sidebar from './components/Sidebar';
 import SongList from './components/SongList';
 import SearchPage from './components/SearchPage';
 import AlbumsView from './components/AlbumsView';
+import RadioView from './components/RadioView';
 import PlayerBar from './components/PlayerBar';
 import FullScreenPlayer from './components/FullScreenPlayer';
 import AudioController from './components/AudioController';
@@ -16,6 +17,8 @@ function App() {
     switch (currentView) {
       case 'home':
         return <SearchPage />;
+      case 'radio':
+        return <RadioView />;
       case 'albums':
         return <AlbumsView />;
       case 'library':
