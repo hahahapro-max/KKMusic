@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/netease/:match*",
+      "destination": "/api/netease?path=/:match*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
