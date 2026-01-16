@@ -45,7 +45,10 @@ const AudioController = () => {
         }
 
         // Check for HLS support
-        if (Hls.isSupported() && (src.includes('.m3u8') || currentSong.isRadio)) {
+        // Only treat as HLS if extension matches. Do NOT force all radio to HLS.
+        const isHlsSource = src.includes('.m3u8') || src.includes('.m3u');
+        
+        if (Hls.isSupported() && isHlsSource) {
           const hls = new Hls();
           hlsRef.current = hls;
           hls.loadSource(src);
@@ -55,10 +58,15 @@ const AudioController = () => {
           });
           hls.on(Hls.Events.ERROR, function (event, data) {
             if (data.fatal) {
+              console.warn("HLS fatal error", data.type, data.details);
               switch (data.type) {
                 case Hls.ErrorTypes.NETWORK_ERROR:
-                  console.log("fatal network error encountered, try to recover");
-                  hls.startLoad();
+                  console.log("fatal network error encountered, trying fallback to native audio");
+                  hls.destroy();
+                  hlsRef.current = null;
+                  // Fallback to native audio (might work for some streams or if HLS.js is too strict)
+                  audio.src = src;
+                  if (isPlaying) audio.play().catch(e => console.warn("Fallback play failed", e));
                   break;
                 case Hls.ErrorTypes.MEDIA_ERROR:
                   console.log("fatal media error encountered, try to recover");
@@ -72,7 +80,7 @@ const AudioController = () => {
           });
         } 
         // Native HLS support (Safari)
-        else if (audio.canPlayType('application/vnd.apple.mpegurl') && (src.includes('.m3u8') || currentSong.isRadio)) {
+        else if (audio.canPlayType('application/vnd.apple.mpegurl') && isHlsSource) {
            audio.src = src;
            if (isPlaying) {
              audio.play().catch(e => console.warn("Autoplay prevented", e));
