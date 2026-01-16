@@ -144,13 +144,13 @@ function FullScreenPlayer() {
         </div>
 
         {/* 主要内容区域 */}
-        <div className="flex-1 flex flex-col md:flex-row items-center justify-center gap-12 md:gap-24 pb-20">
+        <div className="flex-1 flex flex-col md:flex-row items-center justify-center gap-8 md:gap-24 pb-20">
           
           {/* 视图切换: 封面 vs 歌词 */}
           {showLyrics ? (
               <div 
                 ref={lyricsContainerRef}
-                className="w-full h-[50vh] md:h-[60vh] overflow-y-auto custom-scrollbar text-center space-y-6 mask-linear-gradient"
+                className="w-full h-[45vh] md:h-[60vh] overflow-y-auto custom-scrollbar text-center space-y-6 mask-linear-gradient"
               >
                   {lyrics.length > 0 ? (
                       lyrics.map((line, i) => (

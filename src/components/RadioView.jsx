@@ -65,35 +65,33 @@ const RadioView = () => {
   };
 
   return (
-    <div className="flex h-full">
-      {/* Province List (Left Sidebar) */}
-      <div className="w-48 border-r border-white/10 overflow-y-auto custom-scrollbar bg-black/20">
-        <div className="p-4">
-          <h2 className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-4">Regions</h2>
-          <div className="space-y-1">
-            {provinces.map((province) => (
-              <button
-                key={province.name}
-                onClick={() => setSelectedProvince(province.name)}
-                className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
-                  selectedProvince === province.name
-                    ? 'bg-pink-500/20 text-pink-500 font-medium'
-                    : 'text-white/60 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                {province.name}
-                <span className="float-right text-xs opacity-50">{province.stationcount}</span>
-              </button>
-            ))}
-          </div>
+    <div className="flex flex-col md:flex-row h-full">
+      {/* Province List (Sidebar) */}
+      <div className="w-full md:w-48 border-b md:border-b-0 md:border-r border-white/10 flex-shrink-0 bg-black/20">
+        <div className="p-2 md:p-4 overflow-x-auto md:overflow-y-auto h-full custom-scrollbar flex md:block items-center gap-2 md:gap-0">
+          <h2 className="hidden md:block text-xs font-semibold text-white/40 uppercase tracking-wider mb-4">Regions</h2>
+          {provinces.map((province) => (
+            <button
+              key={province.name}
+              onClick={() => setSelectedProvince(province.name)}
+              className={`flex-shrink-0 md:w-full text-left px-3 py-1.5 md:py-2 rounded-lg text-sm transition-colors whitespace-nowrap ${
+                selectedProvince === province.name
+                  ? 'bg-pink-500/20 text-pink-500 font-medium'
+                  : 'text-white/60 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              {province.name}
+              <span className="hidden md:inline float-right text-xs opacity-50">{province.stationcount}</span>
+            </button>
+          ))}
         </div>
       </div>
 
       {/* Station Grid (Main Content) */}
-      <div className="flex-1 overflow-y-auto custom-scrollbar p-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">{selectedProvince} Radio</h1>
-          <p className="text-white/60">Live stations from {selectedProvince}, China</p>
+      <div className="flex-1 overflow-y-auto custom-scrollbar p-4 md:p-8">
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-2xl md:text-3xl font-bold mb-2">{selectedProvince} Radio</h1>
+          <p className="text-white/60 text-sm md:text-base">Live stations from {selectedProvince}, China</p>
         </div>
 
         {isLoading ? (

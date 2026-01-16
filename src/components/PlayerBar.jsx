@@ -47,7 +47,7 @@ const PlayerBar = () => {
   return (
     <div className="h-20 bg-[#1c1c1e]/95 backdrop-blur-xl border-t border-white/10 flex items-center px-4 justify-between z-50">
       {/* Song Info */}
-      <div className="flex items-center gap-4 w-[30%] min-w-0">
+      <div className="flex items-center gap-4 w-[60%] md:w-[30%] min-w-0">
         <div className="w-12 h-12 rounded-md bg-white/10 overflow-hidden flex-shrink-0 relative group cursor-pointer" onClick={toggleFullScreen}>
           {displayCover ? (
              <img src={displayCover} className="w-full h-full object-cover" />
@@ -68,7 +68,7 @@ const PlayerBar = () => {
 
       {/* Controls */}
       <div className="flex flex-col items-center gap-1 w-[40%]">
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-4 md:gap-6">
           <button onClick={prevSong} className="text-white/60 hover:text-white transition">
             <SkipBack size={20} fill="currentColor" />
           </button>
@@ -82,7 +82,7 @@ const PlayerBar = () => {
             <SkipForward size={20} fill="currentColor" />
           </button>
         </div>
-        <div className="w-full max-w-md flex items-center gap-2 text-[10px] text-white/40 font-medium tabular-nums">
+        <div className="w-full max-w-md flex items-center gap-2 text-[10px] text-white/40 font-medium tabular-nums hidden md:flex">
            <span>{formatTime(currentTime)}</span>
            <input 
              type="range" 
@@ -94,10 +94,17 @@ const PlayerBar = () => {
            />
            <span>{formatTime(duration)}</span>
         </div>
+        {/* Mobile progress bar (simple) */}
+        <div className="w-full h-1 bg-white/10 rounded-full md:hidden mt-1 relative">
+             <div 
+               className="h-full bg-white/50 rounded-full" 
+               style={{ width: `${(currentTime / (duration || 1)) * 100}%` }}
+             />
+        </div>
       </div>
 
-      {/* Volume & Misc */}
-      <div className="flex items-center justify-end gap-4 w-[30%]">
+      {/* Volume & Misc - Hidden on Mobile */}
+      <div className="hidden md:flex items-center justify-end gap-4 w-[30%]">
         <button className="text-white/60 hover:text-white">
           <ListMusic size={18} />
         </button>

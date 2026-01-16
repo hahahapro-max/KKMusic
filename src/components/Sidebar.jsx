@@ -25,67 +25,77 @@ const SidebarGroup = ({ title, children }) => (
   </div>
 );
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, onClose }) => {
   const { currentView, setCurrentView } = usePlayerStore();
 
+  const handleNavigation = (view) => {
+    setCurrentView(view);
+    onClose?.(); // Close sidebar on mobile when navigating
+  };
+
   return (
-    <div className="w-64 h-full bg-[#1c1c1e]/90 backdrop-blur-xl border-r border-white/10 flex flex-col p-4 pt-10">
-      <div className="px-4 mb-6">
-        <div className="flex items-center gap-2 mb-6">
-          <Music className="text-pink-500" size={32} />
-          <span className="text-xl font-bold">Music</span>
+    <>
+      <div className={clsx(
+        "fixed inset-y-0 left-0 z-50 w-64 bg-[#1c1c1e]/95 backdrop-blur-xl border-r border-white/10 flex flex-col p-4 pt-10 transition-transform duration-300 ease-in-out md:relative md:translate-x-0",
+        isOpen ? "translate-x-0" : "-translate-x-full"
+      )}>
+        <div className="px-4 mb-6">
+          <div className="flex items-center gap-2 mb-6">
+            <Music className="text-pink-500" size={32} />
+            <span className="text-xl font-bold">Music</span>
+          </div>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" size={16} />
+            <input 
+              type="text" 
+              placeholder="Search" 
+              className="w-full bg-white/10 rounded-lg pl-10 pr-4 py-1.5 text-sm text-white placeholder-white/40 focus:outline-none focus:bg-white/20 transition-colors"
+              onFocus={() => handleNavigation('home')}
+            />
+          </div>
         </div>
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" size={16} />
-          <input 
-            type="text" 
-            placeholder="Search" 
-            className="w-full bg-white/10 rounded-lg pl-10 pr-4 py-1.5 text-sm text-white placeholder-white/40 focus:outline-none focus:bg-white/20 transition-colors"
-            onFocus={() => setCurrentView('home')}
-          />
+
+        <div className="flex-1 overflow-y-auto custom-scrollbar">
+          <SidebarGroup>
+            <SidebarItem 
+              icon={Home} 
+              label="Search" 
+              active={currentView === 'home'} 
+              onClick={() => handleNavigation('home')} 
+            />
+            <SidebarItem icon={Grid} label="Browse" />
+            <SidebarItem 
+              icon={Radio} 
+              label="Radio" 
+              active={currentView === 'radio'}
+              onClick={() => handleNavigation('radio')}
+            />
+          </SidebarGroup>
+
+          <SidebarGroup title="Library">
+            <SidebarItem icon={Clock} label="Recently Added" />
+            <SidebarItem 
+              icon={Music} 
+              label="Songs" 
+              active={currentView === 'library'}
+              onClick={() => handleNavigation('library')}
+            />
+            <SidebarItem 
+              icon={PlaySquare} 
+              label="Albums" 
+              active={currentView === 'albums'}
+              onClick={() => handleNavigation('albums')}
+            />
+            <SidebarItem icon={Heart} label="Artists" />
+          </SidebarGroup>
+
+          <SidebarGroup title="Playlists">
+            <SidebarItem icon={PlaySquare} label="My Top Rated" />
+            <SidebarItem icon={PlaySquare} label="Workout Mix" />
+          </SidebarGroup>
         </div>
       </div>
-
-      <div className="flex-1 overflow-y-auto custom-scrollbar">
-        <SidebarGroup>
-          <SidebarItem 
-            icon={Home} 
-            label="Search" 
-            active={currentView === 'home'} 
-            onClick={() => setCurrentView('home')} 
-          />
-          <SidebarItem icon={Grid} label="Browse" />
-          <SidebarItem 
-            icon={Radio} 
-            label="Radio" 
-            active={currentView === 'radio'}
-            onClick={() => setCurrentView('radio')}
-          />
-        </SidebarGroup>
-
-        <SidebarGroup title="Library">
-          <SidebarItem icon={Clock} label="Recently Added" />
-          <SidebarItem 
-            icon={Music} 
-            label="Songs" 
-            active={currentView === 'library'}
-            onClick={() => setCurrentView('library')}
-          />
-          <SidebarItem 
-            icon={PlaySquare} 
-            label="Albums" 
-            active={currentView === 'albums'}
-            onClick={() => setCurrentView('albums')}
-          />
-          <SidebarItem icon={Heart} label="Artists" />
-        </SidebarGroup>
-
-        <SidebarGroup title="Playlists">
-          <SidebarItem icon={PlaySquare} label="My Top Rated" />
-          <SidebarItem icon={PlaySquare} label="Workout Mix" />
-        </SidebarGroup>
-      </div>
-    </div>
+    </>
   );
 };
 

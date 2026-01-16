@@ -31,29 +31,30 @@ const SongList = () => {
 
   return (
     <div className="flex-1 h-full overflow-hidden flex flex-col bg-black">
-      <div className="p-8 pb-4 flex justify-between items-end">
+      <div className="p-4 md:p-8 pb-4 flex justify-between items-end">
         <div>
-          <h1 className="text-3xl font-bold mb-1">Songs</h1>
+          <h1 className="text-2xl md:text-3xl font-bold mb-1">Songs</h1>
           <p className="text-white/60 text-sm">{songs.length} songs</p>
         </div>
         <button 
           onClick={handleImport}
-          className="flex items-center gap-2 bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm"
+          className="flex items-center gap-2 bg-pink-500 hover:bg-pink-600 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-medium transition-colors text-sm"
         >
           <FolderPlus size={18} />
-          Add Folder
+          <span className="hidden md:inline">Add Folder</span>
+          <span className="md:hidden">Add</span>
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto custom-scrollbar p-8 pt-0">
+      <div className="flex-1 overflow-y-auto custom-scrollbar p-4 pt-0 md:p-8 md:pt-0">
         <div className="w-full text-left border-collapse">
-          <div className="sticky top-0 bg-black z-10 grid grid-cols-[auto_1fr_1fr_1fr_auto_auto] gap-4 py-3 border-b border-white/10 text-xs font-medium text-white/40 uppercase tracking-wider">
+          <div className="sticky top-0 bg-black z-10 grid grid-cols-[auto_1fr_auto] md:grid-cols-[auto_1fr_1fr_1fr_auto_auto] gap-4 py-3 border-b border-white/10 text-xs font-medium text-white/40 uppercase tracking-wider">
             <div className="w-8 text-center">#</div>
             <div>Title</div>
-            <div>Artist</div>
-            <div>Album</div>
+            <div className="hidden md:block">Artist</div>
+            <div className="hidden md:block">Album</div>
             <div className="w-8"></div>
-            <div className="w-16 text-right"><Clock size={14} className="ml-auto" /></div>
+            <div className="hidden md:block w-16 text-right"><Clock size={14} className="ml-auto" /></div>
           </div>
           
           <div className="mt-2 space-y-1">
@@ -71,7 +72,8 @@ const SongList = () => {
                   <div 
                     key={song.id}
                     onDoubleClick={() => playSong(song, songs)}
-                    className={`grid grid-cols-[auto_1fr_1fr_1fr_auto_auto] gap-4 py-2.5 px-2 rounded-lg items-center text-sm group hover:bg-white/10 transition-colors cursor-default ${isCurrent ? 'bg-white/10 text-pink-500' : 'text-white/80'}`}
+                    onClick={() => window.innerWidth < 768 && playSong(song, songs)} // Click to play on mobile
+                    className={`grid grid-cols-[auto_1fr_auto] md:grid-cols-[auto_1fr_1fr_1fr_auto_auto] gap-4 py-2.5 px-2 rounded-lg items-center text-sm group hover:bg-white/10 transition-colors cursor-default ${isCurrent ? 'bg-white/10 text-pink-500' : 'text-white/80'}`}
                   >
                     <div className="w-8 text-center relative flex justify-center">
                       <span className={`group-hover:hidden ${isCurrent ? 'hidden' : 'block'}`}>{index + 1}</span>
@@ -89,9 +91,12 @@ const SongList = () => {
                          </div>
                       )}
                     </div>
-                    <div className="font-medium truncate text-white">{song.title}</div>
-                    <div className="truncate text-white/60">{song.artist}</div>
-                    <div className="truncate text-white/60">{song.album}</div>
+                    <div className="min-w-0">
+                      <div className="font-medium truncate text-white">{song.title}</div>
+                      <div className="truncate text-white/60 md:hidden">{song.artist}</div>
+                    </div>
+                    <div className="truncate text-white/60 hidden md:block">{song.artist}</div>
+                    <div className="truncate text-white/60 hidden md:block">{song.album}</div>
                     <div className="w-8 flex justify-center">
                        <button 
                          onClick={(e) => {
