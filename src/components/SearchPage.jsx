@@ -53,7 +53,26 @@ const SearchPage = () => {
           liked: librarySongs.some(s => s.id === song.id && s.liked)
         };
         
-        playSong(track);
+        // Create a queue from the current search results
+        const queue = results.map(s => ({
+          id: s.id,
+          title: s.name,
+          artist: s.artist,
+          album: s.album || 'Unknown Album',
+          duration: s.duration || 0,
+          coverUrl: s.picUrl,
+          remoteCoverUrl: s.picUrl,
+          url: s.playUrl,
+          liked: librarySongs.some(ls => ls.id === s.id && ls.liked)
+        }));
+
+        // Ensure the clicked song in the queue has the correct (potentially freshly fetched) URL
+        const trackIndex = queue.findIndex(q => q.id === track.id);
+        if (trackIndex !== -1) {
+            queue[trackIndex] = track;
+        }
+
+        playSong(track, queue);
       } else {
         alert("Failed to get playback URL");
       }
