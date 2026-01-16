@@ -12,7 +12,8 @@ export default defineConfig({
         manualChunks: {
           'vendor-react': ['react', 'react-dom'],
           'vendor-ui': ['framer-motion', 'lucide-react', 'clsx', 'tailwind-merge'],
-          'vendor-utils': ['axios', 'buffer', 'process', 'music-metadata-browser'],
+          'vendor-utils': ['axios', 'buffer', 'process'],
+          'vendor-mmb': ['music-metadata-browser'],
           'vendor-player': ['hls.js', 'zustand', 'dexie'],
         },
       },
