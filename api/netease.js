@@ -1,9 +1,14 @@
 import axios from 'axios';
 
 export default async function handler(req, res) {
-  // 1. CORS Headers - Allow all for this proxy
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  const origin = req.headers.origin;
+  if (origin) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Vary', 'Origin');
+  } else {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+  }
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
   res.setHeader(
     'Access-Control-Allow-Headers',
@@ -24,16 +29,17 @@ export default async function handler(req, res) {
 
   // Handle path being an array (wildcard match) or string
   const pathStr = Array.isArray(path) ? path.join('/') : path;
-  const cleanPath = pathStr.startsWith('/') ? pathStr : `/${pathStr}`;
+  const cleanPath = (pathStr.startsWith('/') ? pathStr : `/${pathStr}`).replace(/^\/+/, '/');
   
   // 4. Construct Target URL
-  const targetUrl = `http://music.163.com${cleanPath}`;
+  const targetUrl = `https://music.163.com${cleanPath}`;
 
   // 5. Prepare Query Params (remove 'path' which is internal routing)
   const queryParams = { ...req.query };
   delete queryParams.path;
 
   try {
+    const fakeIp = '118.88.88.88';
     // 6. Proxy Request
     const response = await axios({
       method: req.method,
@@ -41,16 +47,19 @@ export default async function handler(req, res) {
       params: queryParams,
       data: req.body,
       headers: {
-        'Referer': 'http://music.163.com/',
-        'Origin': 'http://music.163.com/',
+        'Referer': 'https://music.163.com/',
+        'Origin': 'https://music.163.com/',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Cookie': 'os=pc; appver=2.9.7', // Standard cookie to avoid some blocks
-        'X-Real-IP': '118.88.88.88', // Fake Mainland China IP to bypass region restrictions
+        'X-Real-IP': fakeIp,
+        'X-Forwarded-For': fakeIp,
+        'Accept-Language': 'zh-CN,zh;q=0.9',
         'Content-Type': req.headers['content-type'] || 'application/x-www-form-urlencoded',
         'Accept': 'application/json, text/plain, */*',
       },
       responseType: 'arraybuffer', // Use buffer to handle all data types safely (JSON, text, binary)
       validateStatus: () => true, // Don't throw error on 4xx/5xx, just forward them
+      timeout: 15000,
     });
 
     // 7. Forward Status
